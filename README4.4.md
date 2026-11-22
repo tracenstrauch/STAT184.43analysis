@@ -25,3 +25,8 @@ This repository contains my Quarto file and final PDF report for HW 4.3, which c
 - **Analysis:** Used `tidyverse` to clean the data, run summary stats, build simulations, and organize the calcium data.
 - **Visuals:** Created tables with `knitr` and `kableExtra`, and plots with `ggplot2` and `patchwork`.
 - **Report:** Compiled the `.qmd` file into a PDF with labeled code chunks and a Code Appendix.
+
+## Contact
+- **Name:** Tracen Strauch
+- **GitHub:** [tracenstrauch](https://github.com/tracenstrauch)
+- **Email:** tcs5488@psu.edu

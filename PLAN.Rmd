@@ -1,0 +1,37 @@
+# Project & Repository Plan
+
+## 1. HW 4.3 Project Plan
+
+### Goals
+- Analyze four datasets (Diamonds, BIG10, Monte Carlo, and Calcium) in R.
+- Compare ChatGPT visualizations made with a structured plan vs. a generic prompt.
+- Render a clean, reproducible PDF report with a Code Appendix.
+
+### Needs
+- **Software:** RStudio.
+- **Packages:** `tidyverse`, `ggplot2`, `patchwork`, `knitr`, `kableExtra`.
+- **Data:** `diamonds` (from R), `team_box.csv`, and `calcium.csv`.
+
+### Steps
+1. **Clean & Summarize:** Use `tidyverse` to filter the data and calculate summary stats.
+2. **Simulate & Tidy:** Run the Monte Carlo simulation and write out the tidying plan for `calcium.csv`.
+3. **Plot & Format:** Make summary tables with `kableExtra` and plots with `ggplot2`.
+4. **Render:** Add cross-references, reflection, and the Code Appendix, then compile the `.qmd` to `.pdf`.
+
+
+
+## 2. GitHub Repository Plan
+
+### Goals
+- Keep a public GitHub repo (`STAT184.43analysis`) for my HW 4.3 `.qmd` and `.pdf` files.
+- Use GitHub Issues, branches (`main` and `dev`), commits, and Pull Requests properly.
+
+### Needs
+- **Tools:** GitHub.com and GitHub Desktop.
+- **Files:** `README.md`, `PLAN.md`, `hw43.qmd`, and `hw43.pdf`.
+
+### Steps
+1. **Create Repo:** Make a public repo with a `README.md`.
+2. **Track Tasks:** Open two GitHub Issues for adding files and writing documentation.
+3. **Branch & Commit:** Make a `dev` branch, add all files there, and commit with clear messages.
+4. **Merge & Maintain:** Merge `dev` into `main` using Pull Requests, and use `dev` for any future updates.
