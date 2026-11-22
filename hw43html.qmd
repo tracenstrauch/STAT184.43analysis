@@ -1,0 +1,418 @@
+---
+title: "HW 4.3 Reproducible Data Analysis"
+author: "Tracen Strauch"
+format: pdf
+---
+
+# PART 1 - Diamonds
+
+## Narrative
+
+In this part, I will be exploring how the physical dimensions of diamonds length ($x$), width ($y$), and depth ($z$) vary across different color categories from D to J.
+
+```{r}
+#| label: setup
+#| echo: false
+#| include: false
+#| warning: false
+
+#load packages
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(knitr)
+library(kableExtra)
+
+#load data
+data(diamonds)
+
+```
+
+### Diamonds Tables of Statistics
+
+
+```{r}
+#| label: diamonds-prep
+#| include: false
+
+#DIAMONDS
+
+# Filter out 0 values 
+clean_diamonds <- diamonds |>
+  filter(x > 0 & y > 0 & z > 0)
+
+# Table for Length (x)
+table_x <- clean_diamonds |>
+  group_by(color) |>    # group diamonds by their color
+  summarise(      # summarizing all descriptive statistics
+    count = n(),
+    Min = min(x),
+    Q1 = quantile(x, .20),
+    Q2 = quantile(x, .40),
+    Median = median(x),
+    Q3 = quantile(x, .60),
+    Q4 = quantile(x, .80),
+    Max = max(x),
+    Mean = mean(x),
+    SD = sd(x)
+  )
+
+# Table for Width (y)
+table_y <- clean_diamonds |>
+  group_by(color) |>
+  summarise(
+    count = n(),
+    Min = min(y),
+    Q1 = quantile(y, .20),
+    Q2 = quantile(y, .40),
+    Median = median(y),
+    Q3 = quantile(y, .60),
+    Q4 = quantile(y, .80),
+    Max = max(y),
+    Mean = mean(y),
+    SD = sd(y)
+  )
+
+# Table for Depth (z)
+table_z <- clean_diamonds |>
+  group_by(color) |>
+  summarise(
+    count = n(),
+    Min = min(z),
+    Q1 = quantile(z, .20),
+    Q2 = quantile(z, .40),
+    Median = median(z),
+    Q3 = quantile(z, .60),
+    Q4 = quantile(z, .80),
+    Max = max(z),
+    Mean = mean(z),
+    SD = sd(z)
+  )
+```
+
+**Diamond Length (x) Statistics by Color**
+
+@tbl-length shows a statistics table titled “Descriptive Statistics of Diamond Length (x) by Color” which lists seven diamond color categories, D through J, across 11 columns: color, count, Min, Q1, Q2, Median, Q3, Q4, Max, Mean, and SD. The table has thin horizontal rules and alternating light-gray row shading. Counts range from 2,808 for J to 11,284 for G; the listed means range from 5.41 for E to 6.52 for J.
+
+```{r}
+#| label: tbl-length
+#| tbl-cap: "Descriptive Statistics of Diamond Length (x) by Color"
+#| echo: false
+#| warning: false
+
+#diamond(x)
+
+knitr::kable(table_x, digits = 2) |>
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+```
+
+**Diamond Width (y) Statistics by Color**
+
+@tbl-width shows a statistics table titled “Descriptive Statistics of Diamond Width (y) by Color” which lists seven diamond color categories, D through J, across 11 columns: color, count, Min, Q1, Q2, Median, Q3, Q4, Max, Mean, and SD. The table has thin horizontal rules and alternating light-gray row shading. Counts range from 2,808 for J to 11,284 for G; the listed means range from 5.42 for D and E to 6.52 for J.
+
+```{r}
+#| label: tbl-width
+#| tbl-cap: "Descriptive Statistics of Diamond Width (y) by Color"
+#| echo: false
+
+#diamond (y)
+
+knitr::kable(table_y, digits = 2) |>
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+```
+
+**Diamond Depth (z) Statistics by Color**
+
+@tbl-depth shows a statistics table titled “Descriptive Statistics of Diamond Depth (z) by Color” which lists seven diamond color categories, D through J, across 11 columns: color, count, Min, Q1, Q2, Median, Q3, Q4, Max, Mean, and SD. The table has thin horizontal rules and alternating light-gray row shading. Counts range from 2,808 for J to 11,284 for G; the listed means range from 3.34 for D and E to 4.03 for J.
+
+```{r}
+#| label: tbl-depth
+#| tbl-cap: "Descriptive Statistics of Diamond Depth (z) by Color"
+#| echo: false
+#| warning: false
+
+#diamond (z)
+
+knitr::kable(table_z, digits = 2) |>
+  kableExtra::kable_styling(latex_options = c("striped", "hold_position"))
+
+```
+
+
+
+# PART 2 - BIG10
+
+## Narrative
+
+In this part, I will be examining the relationship between offensive and defensive performance across teams using the `team_box.csv` dataset.
+
+```{r}
+#| label: btaa-prep
+#| include: false
+
+#BIG!0 BTAA LOVE
+
+team_box <- read_csv("team_box.csv") #reading csv
+
+team_stats <- team_box |>
+  group_by(team_id) |> #grouping by teams
+  summarise( #finding average score & opp score
+    avg_score = mean(team_score, na.rm = TRUE), 
+    avg_opp_score = mean(opponent_team_score, na.rm = TRUE)
+  )
+
+```
+
+@fig-team-stats shows a scatter plot titled “Average Points Scored vs Allowed Per Game” which shows average points scored on the horizontal axis and average points allowed on the vertical axis. Blue, semi-transparent circular points form a broad downward-sloping pattern: higher scoring values generally align with fewer points allowed. The densest cluster is around 60–70 points scored and 60–70 allowed; a more dispersed group spans roughly 30–60 scored and 70–110 allowed. A few points lie well above or to the right of the main clusters.
+
+```{r}
+#| label: fig-team-stats
+#| fig-cap: "Average Points Scored vs Allowed Per Game"
+#| echo: false
+#| warning: false
+#| fig-pos: "H"
+
+#BIG10 avg score vs avg allowed
+
+team_stats |>
+  ggplot(aes(x = avg_score, y = avg_opp_score)) +
+  geom_point(alpha = 0.3, color = "blue", size = 2) +
+  labs(
+    title = "Average Points Scored vs Allowed Per Game",
+    x = "Average Points Scored",
+    y = "Average Points Allowed"
+  )
+
+```
+
+
+
+# PART 3 - Monte Carlo
+
+## Narrative 
+
+In this part, I will be running a Monte Carlo simulation to estimate the area under a chi-square curve. I tested four different sample sizes ($n = 10$, $100$, $1,000$, and $10,000$).
+
+
+```{r}
+#| label: mc-prep
+#| include: false
+
+
+mc_simulation <- function(n) {  #running simulation
+  x_vals <- runif(n, min = 0, max = 20)
+  y_vals <- runif(n, min = 0, max = 0.16)
+  
+  sim_data <- data.frame(x = x_vals, y = y_vals) |>
+    mutate(
+      curve_val = dchisq(x, df = 5),
+      flag = ifelse(y <= curve_val, "on/below", "above")
+    )
+  return(sim_data)
+}
+
+rect_area <- 20 * 0.16    # setting rectangle area
+
+make_mc_plot <- function(n_pts) {  #creation of plots
+  sim_df <- mc_simulation(n_pts)
+  onBelow <- mean(sim_df$flag == "on/below")
+  integral_est <- rect_area * onBelow
+  
+  ggplot(sim_df, aes(x = x, y = y, color = flag)) +
+    geom_point(alpha = 0.3, size = 1) +
+    scale_color_manual(values = c("above" = "red", "on/below" = "green")) +
+    stat_function(
+      fun = dchisq,
+      args = list(df = 5),
+      xlim = c(0,20)
+    ) +
+    labs(
+      title = paste("n =", n_pts),
+      subtitle = paste("Est. Int:", round(integral_est, 4)),
+      x = "x",
+      y = "y"
+    ) +
+    theme(legend.position = "none") 
+}
+# making individual plots for sizes of n
+plot10 <- make_mc_plot(10)
+plot100 <- make_mc_plot(100)
+plot1000 <- make_mc_plot(1000)
+plot10000 <- make_mc_plot(10000)
+
+#plots put together
+mc_grid <- (plot10 + plot100) / (plot1000 + plot10000)
+
+```
+
+@fig-mc-grid shows four Monte Carlo integration plots arranged in a two-by-two grid. Each has gray gridlines, x and y axes, red points labeled “above,” and a green curve labeled “on/below.” The green curve rises sharply near x = 0, peaks around y = 0.15, then declines toward zero by x = 20. From upper left to lower right, the plots show increasingly dense red and green points around the curve. The displayed estimated integrals are 0.64, 0.928, 1.0656, and 0.9824.
+
+```{r}
+#| label: fig-mc-grid
+#| fig-cap: "Monte Carlo Integration Convergence Across Sample Sizes (n = 10 to 10,000)"
+#| echo: false
+#| fig-width: 8
+#| fig-height: 7
+#| warning: false
+#| fig-pos: "H"
+
+mc_grid
+
+```
+
+
+
+# PART 4 - Calcium
+
+## Narrative
+
+In this part, I will be tidying the `calcium.csv` dataset to track how average ulnar calcium changes over four years between the Null group and the Diet/Exercise group. After outlining a step by step data wrangling plan, I will compare the visualizations generated by ChatGPT when given my detailed plan versus when given a generic prompt.
+
+
+## Creating a Plan
+
+**Goal:** Clean up the `calcium.csv` dataset so each row is one measurement for one woman at one point in time, and create a line graph showing how average ulnar calcium changes over four years for the Null group (15 women) compared to the Diet/Exercise group (16 women).
+
+**Needs:**
+* **Data:** The original `calcium.csv` file
+* **Software:** The `tidyverse` package to reshape the data and make the graph.
+
+**Steps:**
+
+1. **Separate the Two Groups:**
+   * Load `calcium.csv` into Rstudio
+   * Split the table in half: columns 1–4 for the Null group, and columns 5–8 for the Diet/Exercise group.
+   * Remove the blank 16th row from the Null group so it only has 15 women, while the Diet/Exercise group has all 16.
+
+2. **Label the Women and Time Points:**
+   * Give each of the 31 women an ID number
+   * Add a `Group` column labeled `"Null"` for the 15 women in the first group, and `"Diet/Exercise"` for the 16 women in the second group.
+   * Make sure the four time columns in both groups are clearly named `Initial`, `Year 1`, `Year 2`, and `Year 3`.
+
+3. **Stack into Tidy Format:**
+   * Stack the two groups back together and combine the four year columns into two columns: `Year` and `Calcium`.
+   * Make sure the final table has 124 rows (31 women $\times$ 4 years) and 4 columns (`ID`, `Group`, `Year`, `Calcium`).
+
+4. **Make the Graph:**
+   * Create a line plot with `Year` on the x axis and `Calcium` on the y axis, colored by `Group`.
+   * Plot one bold line showing the average trend for each group over the four years.
+   * Add a clear title and axis labels so the difference between the two groups is easy to see.
+   
+   
+## CHATGPT using plan to create data visualization
+
+
+![Average Ulnar Calcium Over Four Years by Group (chatgpt plan output)](chatgpt_graph.png){#fig-chatgpt-plan width=85% fig-pos="H"}
+
+
+## CHATGPT creating a data visualization with a generic prompt
+
+
+![Mean Values across all 8 columns (chatgpt generic output)](chatgpt_generic_graph.png){#fig-chatgpt-generic width=85% fig-pos="H"}
+
+## Narrative: Compare and Contrast CHATGPT Outputs
+
+Both of the visualizations are built in CHATGPT-6 from the same calcium dataset, so they reflect the same underlying pattern where values peak early and then drop towards the final time point. However, giving CHATGPT a plan made the final graph clearer and easier to read. Without the plan, CHATGPT treated the columns as eight separate bars with basic labels like Set 1 y0, Set 2 y2, which made it hard to compare the two groups over time. With the plan, ChatGPT properly organized the data into the Null and Diet/Exercise groups across the four years and used a line graph, making the group trends stand out clearly.
+
+
+
+# PART 5 - Reflection
+
+
+
+## APPENDIX
+
+### CHATGPT appendix
+
+**Generic prompt:**
+Create a data visualization with these data (calcium csv)
+
+**Response:**
+
+Your calcium.csv file contains 16 observations and 8 numeric columns, arranged as two sets of four measurements (y0–y3).
+
+Since the file doesn't include descriptions of the groups or measurement units, I'll preserve the original labels and compare their average values.
+
+1. Average calcium measurements
+Mean values across all eight columns
+Average of available observations; original column labels preserved.
+
+2. Summary statistics
+Measurement	Set 1 mean	Set 2 mean
+y0	72.38	69.29
+y1	73.29	70.66
+y2	72.47	71.18
+y3	64.79	64.53
+
+3. Key observations
+- Highest average: Set 1, y1 (73.29).
+- Lowest average: Set 2, y3 (64.53).
+- Consistent pattern: y3 has the lowest average in both sets.
+- Set 1 has higher averages across all four corresponding measurements.
+- Set 1 contains 15 observations per column, while Set 2 contains 16.
+
+
+I asked CHATGPT which version it is in the same chat
+**CHATGPT-6  11/16/2026**
+
+
+**Plan induced prompt:**
+Please follow this exact plan using the attached calcium csv file
+
+**Response:**
+
+I followed your plan using the attached calcium.csv file. The dataset was successfully cleaned, reshaped, and plotted.
+
+1. Generated line graph
+
+ 
+The graph shows the average ulnar calcium measurements for both groups across all four time points.
+
+What the graph shows:
+- Null group (15 women): Average calcium increases slightly through Year 1, then decreases in Year 3.
+- Diet/Exercise group (16 women): Average calcium increases through Year 2, then decreases in Year 3.
+- Both groups experience a noticeable decrease by Year 3.
+2. Data cleaning results
+124 rows × 4 columns verified
+Requirement	Result
+Null group	15 women
+Diet/Exercise group	16 women
+Total women	31
+Time points per woman	4
+Final observations	124
+Final columns	4
+
+The final dataset contains:
+- ID
+- Group
+- Year
+- Calcium
+3. Average calcium values
+Time Point	Null	Diet/Exercise
+Initial	72.38	69.29
+Year 1	73.29	70.66
+Year 2	72.47	71.18
+Year 3	64.79	64.53
+
+
+I asked CHATGPT which version it is in the same chat
+**CHATGPT-6  11/16/2026**
+
+### AI USAGE
+
+Along with the CHATGPT usage highlighted above, I also used the ASU Image Accessibility Creator to help with narrative texts, edits made by myself where needed.
+
+**asuo-ai-labs 11/17/26**
+
+
+### CODE APPENDIX
+
+```{r}
+#| label: code-appendix
+#| ref.label: !expr c("setup", "diamonds-prep", "tbl-length", "tbl-width", "tbl-depth", "btaa-prep", "fig-team-stats", "mc-prep", "fig-mc-grid")
+#| echo: true
+#| eval: false
+
+```
